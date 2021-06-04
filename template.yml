@@ -11,14 +11,6 @@ Globals:
     Timeout: 60
 
 Parameters:
-  slackToken:
-    Description: Env
-    Type: "AWS::SSM::Parameter::Value<String>"
-    Default: /config/global/slack-token
-  channelId:
-    Description: Env
-    Type: "AWS::SSM::Parameter::Value<String>"
-    Default: /config/global/channel-id
   env:
     Description: Env
     Type: "AWS::SSM::Parameter::Value<String>"
@@ -30,6 +22,7 @@ Resources:
     Properties:
       StageName: !Ref env
       Cors: "'*'"
+      TracingEnabled: true
       Auth:
         ApiKeyRequired: true # sets for all methods
 
