@@ -41,10 +41,7 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+      Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
@@ -68,10 +65,7 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+      Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
@@ -80,11 +74,14 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGatewayApi
             Path: /{id}
             Method: GET
+            Auth:
+              ApiKeyRequired: true
 
   # This is a Lambda function config associated with the source code: put-item.js
-  putItemFunction:
+  PutItemFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/handlers/put-item.putItemHandler
@@ -92,10 +89,7 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+      Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
@@ -104,8 +98,59 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGatewayApi
             Path: /
             Method: POST
+            Auth:
+              ApiKeyRequired: true
+
+  # This is a Lambda function config associated with the source code: update-item.js
+  UpdateItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/update-item.updateItemHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP update method to update one item to a DynamoDB table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          SAMPLE_TABLE: !Ref SampleTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{id}
+            Method: PATCH
+            Auth:
+              ApiKeyRequired: true
+
+  # This is a Lambda function config associated with the source code: delete-item.js
+  DeleteItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/delete-item.deleteItemHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP post method to delete one item to a DynamoDB table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          SAMPLE_TABLE: !Ref SampleTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{id}
+            Method: DELETE
+            Auth:
+              ApiKeyRequired: true
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   SampleTable:
@@ -140,5 +185,5 @@ Resources:
 
 Outputs:
   WebEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: "API Gateway endpoint URL for Prod ${env} stage"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${env}/"
