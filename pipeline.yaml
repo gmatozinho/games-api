@@ -1,0 +1,259 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: The CloudFormation template for the CodePipeline.
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+Parameters:
+  Stage:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: /config/global/stage
+  GithubUserName:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: /config/global/github-username
+  GithubRepo:
+    Type: String
+    Default: aws-stepfunctions-example
+  GithubOAuthToken:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: /config/global/github-token
+  Branch:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: /config/global/branch
+
+Resources: 
+
+  # Create an S3 Bucket to store build artifacts
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 
+        Fn::Join:
+          - "-"
+          - 
+            - !Sub ${AWS::StackName}
+            - !Ref Stage
+            - s3bucket
+      VersioningConfiguration:
+        Status: Enabled
+
+  # Create Access Role for CodePipeLine
+  CodePipeLineExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: CodePipelineAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Action:
+              - 'iam:PassRole'
+              Effect: Allow
+              Resource: '*'
+            - Effect: Allow
+              Action:
+              - "codebuild:StartBuild"
+              - "codebuild:BatchGetBuilds"
+              Resource:
+                - !GetAtt BuildProject.Arn
+            - Action:
+              - 's3:ListBucket'
+              - 's3:GetBucketVersioning'
+              Effect: Allow
+              Resource:
+                - !GetAtt S3Bucket.Arn
+                - !Sub ${S3Bucket.Arn}/*
+            - Action:
+              - 's3:*'
+              Effect: Allow
+              Resource:
+                - !GetAtt S3Bucket.Arn
+                - !Sub ${S3Bucket.Arn}/*
+            - Action:
+              - cloudformation:DescribeStacks
+              - cloudformation:DescribeChangeSet
+              - cloudformation:CreateChangeSet
+              - cloudformation:ExecuteChangeSet
+              - cloudformation:DeleteChangeSet
+              - ssm:GetParameters
+              Effect: Allow
+              Resource: "*"
+
+  # Create Access Role for CodeBuild
+  CodeBuildExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: LambdaExecutionPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:PutLogEvents"
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - "ec2:CreateNetworkInterface"
+                - "ec2:DescribeDhcpOptions"
+                - "ec2:DescribeNetworkInterfaces"
+                - "ec2:DeleteNetworkInterface"
+                - "ec2:DescribeSubnets"
+                - "ec2:DescribeSecurityGroups"
+                - "ec2:DescribeVpcs"
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - "s3:*"
+              Resource:
+                - !GetAtt S3Bucket.Arn
+                - !Sub ${S3Bucket.Arn}/*
+
+  # Create Access Role for Cloudformation
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AdministratorAccess'
+
+  # Create the BuildProject with required Build information
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties: 
+      Artifacts: 
+        Type: CODEPIPELINE
+      Description: Build Sam Project
+      Environment: 
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:4.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: True
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: BUCKET
+            Value: !Ref S3Bucket
+      Name: 
+        Fn::Join:
+          - "-"
+          - 
+            - !Sub ${AWS::StackName}
+            - !Ref Stage
+            - build
+      ServiceRole: !GetAtt CodeBuildExecutionRole.Arn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      TimeoutInMinutes: 10
+
+  # Create CodePipeline with 3 stages (Source, Build and Deploy)
+  CodePipeLine:
+    Type: AWS::CodePipeline::Pipeline
+    DependsOn: S3Bucket
+    Properties: 
+      ArtifactStore: 
+        Location: 
+          Ref: S3Bucket
+        Type: S3
+      Name: 
+        Fn::Join:
+          - "-"
+          - 
+            - !Sub ${AWS::StackName}
+            - !Ref Stage
+            - pipeline
+
+      RestartExecutionOnUpdate: False
+      RoleArn: !GetAtt CodePipeLineExecutionRole.Arn
+        
+      Stages:
+
+        # Download source code from Github Repo to source-output-artifacts path in S3 Bucket
+        - Name: Source
+          Actions: 
+            - Name: Source
+              ActionTypeId: 
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: 1
+              Configuration:
+                Repo: !Ref GithubRepo
+                Branch: !Ref Branch
+                Owner: !Ref GithubUserName
+                OAuthToken: !Ref GithubOAuthToken
+              RunOrder: 1
+              OutputArtifacts:
+                - Name: source-output-artifacts
+        
+        # Build the project using the BuildProject and Output build artifacts to build-output-artifacts path in S3 Bucket
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: build-output-artifacts
+              InputArtifacts:
+                - Name: source-output-artifacts
+              Configuration:
+                  ProjectName: !Ref BuildProject
+              RunOrder: 1
+
+        # Deploy the project by executing template.yml file in the Source code with Cloudformation.
+        - Name: Deploy
+          Actions:
+            - Name: CreateChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              InputArtifacts:
+                - Name: source-output-artifacts
+                - Name: build-output-artifacts
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                Capabilities: CAPABILITY_NAMED_IAM
+                ChangeSetName: !Sub ${AWS::StackName}-update
+                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
+                StackName: !Sub ${AWS::StackName}-${Stage}-sam-app
+                TemplatePath: "build-output-artifacts::packaged-template.yml"
+              RunOrder: 1
+            - Name: ExecuteChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              Configuration:
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: !Sub ${AWS::StackName}-${Stage}-sam-app
+                ChangeSetName: !Sub ${AWS::StackName}-update
+                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
+              RunOrder: 2
