@@ -159,4 +159,4 @@ Next, you can use the AWS Serverless Application Repository to deploy ready-to-u
 
 
 aws-vault exec study -- node src/scripts/test_database.js
-aws-vault exec study -- node src/scripts/create_tables.js
+aws-vault exec study -- node src/scripts/init_db.js

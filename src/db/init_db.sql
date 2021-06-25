@@ -6,7 +6,7 @@ CREATE TABLE "game" (
     "website" text NOT NULL,
     "description" text NULL,
     "created_at" timestamp without time zone NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
-    "updated_at" timestamp NOT NULL
+    "updated_at" timestamp NULL
 );
 CREATE TABLE "platform" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

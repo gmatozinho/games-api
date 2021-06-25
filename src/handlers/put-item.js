@@ -1,42 +1,39 @@
-// Create clients and set shared const values outside of the handler.
+const { create } = require("../repo/games");
 
-// Create a DocumentClient that represents the query to add an item
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
+const event = {
+  "httpMethod": "POST",
+  "body": "{\"name\":\"God of war\",\"released\":\"2018\",\"website\":\"www.godofwar.com\",\"description\":\"deus grego\",\"created_at\":\"2021-06-22T01:50:24.327Z\",\"updated_at\":null,\"platforms\":[\"4cefcd09-558c-40ff-973f-ed81b40dc69d\"],\"tags\":[\"546cccae-831f-48d7-9234-3313d7db445a\"],\"stores\":[\"2a06b53b-0f1d-43e9-8b33-316720e32ff9\"]}"
+}
 
-// Get the DynamoDB table name from environment variables
-const tableName = process.env.SAMPLE_TABLE;
 
-/**
- * A simple example includes a HTTP post method to add one item to a DynamoDB table.
- */
-exports.putItemHandler = async (event) => {
-    if (event.httpMethod !== 'POST') {
-        throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
-    }
-    // All log statements are written to CloudWatch
-    console.info('received:', event);
+/* exports. */putItemHandler = async (/* event */) => {
+  if (event.httpMethod !== "POST") {
+    throw new Error(
+      `postMethod only accepts POST method, you tried: ${event.httpMethod} method.`
+    );
+  }
+  const body = JSON.parse(event.body);
 
-    // Get id and name from the body of the request
-    const body = JSON.parse(event.body)
-    const id = body.id;
-    const name = body.name;
-
-    // Creates a new item, or replaces an old item with a new item
-    // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
-    var params = {
-        TableName : tableName,
-        Item: { id : id, name: name }
-    };
-
-    const result = await docClient.put(params).promise();
+  try {
+    const game = await create(body);
 
     const response = {
-        statusCode: 200,
-        body: JSON.stringify(body)
+      statusCode: 200,
+      body: JSON.stringify(game),
     };
 
     // All log statements are written to CloudWatch
-    console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
+    console.info(
+      `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
+    );
     return response;
-}
+  } catch (error) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({message: error.message}),
+    };
+    return response;
+  }
+};
+
+putItemHandler()
