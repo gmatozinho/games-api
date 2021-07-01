@@ -129,11 +129,11 @@ Resources:
 #               ApiKeyRequired: true
 
   # This is a Lambda function config associated with the source code: put-item.js
-  PutItemFunction:
+  CreateItemFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PutItem
-      Handler: src/handlers/put-item.putItemHandler
+      FunctionName: CreateItem
+      Handler: src/handlers/create-item.createItemHandler
       Runtime: nodejs12.x
       MemorySize: 128
       Description: A simple example includes a HTTP post method to add one item to a table.
