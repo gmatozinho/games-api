@@ -1,40 +1,39 @@
-// Create clients and set shared const values outside of the handler.
+const { update } = require("../repo/games");
 
-// Get the DynamoDB table name from environment variables
-const tableName = process.env.SAMPLE_TABLE;
+/* const event = {
+  httpMethod: "PATCH",
+  body: '{"name":"God of war 2","released":"2022","website":"www.godofwar.com","description":"deus grego","created_at":"2021-06-22T01:50:24.327Z","updated_at":null ,"platforms":["1b846756-4fe1-4ad7-9bee-24b6c7d544b0"],"tags":["6d11b33e-aa58-4be4-82d5-66f390f198ea"],"stores":["2ade6cbb-c948-4a57-a843-c05b8b8cb31e"]}', 
+  pathParameters: { 
+    id: "65104acd-b704-48bd-8fb2-a8713f0e550f",
+  },
+}; */
 
-// Create a DocumentClient that represents the query to add an item
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
-
-/**
- * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
- */
 exports.updateItemHandler = async (event) => {
-  if (event.httpMethod !== 'GET') {
-    throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
+  if (event.httpMethod !== "PATCH") {
+    throw new Error(
+      `update method only accepts PATCH method, you tried: ${event.httpMethod} method.`
+    );
   }
-  // All log statements are written to CloudWatch
-  console.info('received:', event);
- 
-  // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
-  const id = event.pathParameters.id;
- 
-  // Get the item from the table
-  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#get-property
-  var params = {
-    TableName : tableName,
-    Key: { id: id },
-  };
-  const data = await docClient.get(params).promise();
-  const item = data.Item;
- 
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify(item)
-  };
- 
-  // All log statements are written to CloudWatch
-  console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
-  return response;
-}
+  const body = JSON.parse(event.body);
+
+  try {
+    const game = await update(event.pathParameters.id, body);
+
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(game),
+    };
+
+    // All log statements are written to CloudWatch
+    console.info(
+      `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
+    );
+    return response;
+  } catch (error) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: error.message }),
+    };
+    return response;
+  }
+};

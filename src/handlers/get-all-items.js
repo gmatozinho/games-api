@@ -1,10 +1,10 @@
 const { list } = require("../repo/games");
 
-const event = {
+/* const event = {
   httpMethod: "GET",
-};
+}; */
 
-/* exports. */getAllItemsHandler = async (/* event */) => {
+exports.getAllItemsHandler = async (event) => {
   if (event.httpMethod !== "GET") {
     throw new Error(
       `getAllItems only accept GET method, you tried: ${event.httpMethod}`
@@ -32,5 +32,3 @@ const event = {
     return response;
   }
 };
-
-getAllItemsHandler()

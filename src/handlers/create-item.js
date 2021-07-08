@@ -1,8 +1,8 @@
 const { create } = require("../repo/games");
-
-/* const event = {
+/* 
+const event = {
   httpMethod: "POST",
-  body: '{"name":"God of war","released":"2018","website":"www.godofwar.com","description":"deus grego","created_at":"2021-06-22T01:50:24.327Z","updated_at":null,"platforms":["4cefcd09-558c-40ff-973f-ed81b40dc69d"],"tags":["546cccae-831f-48d7-9234-3313d7db445a"],"stores":["2a06b53b-0f1d-43e9-8b33-316720e32ff9"]}',
+  body: '{"name":"God of war","released":"2018","website":"www.godofwar.com","description":"deus grego","created_at":"2021-06-22T01:50:24.327Z","updated_at":null,"platforms":["1b846756-4fe1-4ad7-9bee-24b6c7d544b0"],"tags":["6d11b33e-aa58-4be4-82d5-66f390f198ea","c782119a-3879-417b-b6c0-c35052db4d17"],"stores":["2ade6cbb-c948-4a57-a843-c05b8b8cb31e"]}',
 }; */
 
 exports.createItemHandler = async (event) => {
