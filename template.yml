@@ -11,10 +11,10 @@ Globals:
     Timeout: 60
 
 Parameters:
-  # env:
-  #   Description: Env
-  #   Type: "AWS::SSM::Parameter::Value<String>"
-  #   Default: /config/global/env
+  env:
+    Description: Env
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: /config/global/env
   DBUsername:
     Description: Username for MySQL database access. Default - username
     Type: String
@@ -78,55 +78,60 @@ Resources:
       Auth:
         ApiKeyRequired: true # sets for all methods
 
-  # GetAllItemsFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     FunctionName: GetAllItems
-  #     Handler: src/handlers/get-all-items.getAllItemsHandler
-  #     Runtime: nodejs12.x
-  #     MemorySize: 128
-  #     Description: A simple example includes a HTTP get method to get all items from a table.
-  #     Role: !GetAtt LambdaExecutionRole.Arn
-  #     Environment:
-  #       Variables:
-  #         # Make table name accessible as environment variable from function code during execution
-  #         REGION: !Ref "AWS::Region"
-  #         SECRET_ARN: !Ref MyRDSAuroraSecret
-  #         CLUSTER_ARN: !Ref RDSAuroraCluster
-  #         DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
-  #     Events:
-  #       Api:
-  #         Type: Api
-  #         Properties:
-  #           RestApiId: !Ref ApiGatewayApi
-  #           Path: /
-  #           Method: GET
-  #           Auth:
-  #             ApiKeyRequired: true
+  GetAllItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetAllItems
+      Handler: src/handlers/get-all-items.getAllItemsHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Description: A simple example includes a HTTP get method to get all items from a table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          REGION: !Ref "AWS::Region"
+          SECRET_ARN: !Ref MyRDSAuroraSecret
+          CLUSTER_ARN: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
+          DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /
+            Method: GET
+            Auth:
+              ApiKeyRequired: true
+    DependsOn: SecretAuroraAttachment
 
-#   # This is a Lambda function config associated with the source code: get-by-id.js
-#   GetItemByIdFunction:
-#     Type: AWS::Serverless::Function
-#     Properties:
-#       FunctionName: GetItemById
-#       Handler: src/handlers/get-by-id.getByIdHandler
-#       Runtime: nodejs12.x
-#       MemorySize: 128
-#         Description: A simple example includes a HTTP get method to get one item by id from a table.
-#       Role: !GetAtt LambdaExecutionRole.Arn
-#       Environment:
-#         Variables:
-#           # Make table name accessible as environment variable from function code during execution
-#           SAMPLE_TABLE: !Ref SampleTable
-#       Events:
-#         Api:
-#           Type: Api
-#           Properties:
-#             RestApiId: !Ref ApiGatewayApi
-#             Path: /{id}
-#             Method: GET
-#             Auth:
-#               ApiKeyRequired: true
+  # This is a Lambda function config associated with the source code: get-by-id.js
+  GetItemByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetItemById
+      Handler: src/handlers/get-by-id.getByIdHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Description: A simple example includes a HTTP get method to get one item by id from a table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          REGION: !Ref "AWS::Region"
+          SECRET_ARN: !Ref MyRDSAuroraSecret
+          CLUSTER_ARN: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
+          DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{id}
+            Method: GET
+            Auth:
+              ApiKeyRequired: true
+    DependsOn: SecretAuroraAttachment
 
   # This is a Lambda function config associated with the source code: put-item.js
   CreateItemFunction:
@@ -143,7 +148,7 @@ Resources:
           # Make table name accessible as environment variable from function code during execution
           REGION: !Ref "AWS::Region"
           SECRET_ARN: !Ref MyRDSAuroraSecret
-          CLUSTER_ARN: !Ref RDSAuroraCluster
+          CLUSTER_ARN: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
           DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
       Events:
         Api:
@@ -154,54 +159,65 @@ Resources:
             Method: POST
             Auth:
               ApiKeyRequired: true
+    DependsOn: SecretAuroraAttachment
 
-#   # This is a Lambda function config associated with the source code: update-item.js
-#   UpdateItemFunction:
-#     Type: AWS::Serverless::Function
-#     Properties:
-#       FunctionName: UpdateItem
-#       Handler: src/handlers/update-item.updateItemHandler
-#       Runtime: nodejs12.x
-#       MemorySize: 128
-#         Description: A simple example includes a HTTP update method to update one item to a table.
-#       Role: !GetAtt LambdaExecutionRole.Arn
-#       Environment:
-#         Variables:
-#           # Make table name accessible as environment variable from function code during execution
-#           SAMPLE_TABLE: !Ref SampleTable
-#       Events:
-#         Api:
-#           Type: Api
-#           Properties:
-#             RestApiId: !Ref ApiGatewayApi
-#             Path: /{id}
-#             Method: PATCH
-#             Auth:
-#               ApiKeyRequired: true
 
-#   # This is a Lambda function config associated with the source code: delete-item.js
-#   DeleteItemFunction:
-#     Type: AWS::Serverless::Function
-#     Properties:
-#       FunctionName: DeleteItem
-#       Handler: src/handlers/delete-item.deleteItemHandler
-#       Runtime: nodejs12.x
-#       MemorySize: 128
-#         Description: A simple example includes a HTTP post method to delete one item to a table.
-#       Role: !GetAtt LambdaExecutionRole.Arn
-#       Environment:
-#         Variables:
-#           # Make table name accessible as environment variable from function code during execution
-#           SAMPLE_TABLE: !Ref SampleTable
-#       Events:
-#         Api:
-#           Type: Api
-#           Properties:
-#             RestApiId: !Ref ApiGatewayApi
-#             Path: /{id}
-#             Method: DELETE
-#             Auth:
-#               ApiKeyRequired: true
+  # This is a Lambda function config associated with the source code: update-item.js
+  UpdateItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: UpdateItem
+      Handler: src/handlers/update-item.updateItemHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Description: A simple example includes a HTTP update method to update one item to a table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          REGION: !Ref "AWS::Region"
+          SECRET_ARN: !Ref MyRDSAuroraSecret
+          CLUSTER_ARN: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
+          DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{id}
+            Method: PATCH
+            Auth:
+              ApiKeyRequired: true
+    DependsOn: SecretAuroraAttachment
+
+
+  # This is a Lambda function config associated with the source code: delete-item.js
+  DeleteItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: DeleteItem
+      Handler: src/handlers/delete-item.deleteItemHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Description: A simple example includes a HTTP post method to delete one item to a table.
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          REGION: !Ref "AWS::Region"
+          SECRET_ARN: !Ref MyRDSAuroraSecret
+          CLUSTER_ARN: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
+          DB_NAME: !Sub '{{resolve:secretsmanager:${MyRDSAuroraSecret}::dbname}}'
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{id}
+            Method: DELETE
+            Auth:
+              ApiKeyRequired: true
+    DependsOn: SecretAuroraAttachment
 
   LambdaExecutionRole:
     Type: "AWS::IAM::Role"
@@ -222,8 +238,22 @@ Resources:
                 Action:
                   - "logs:*"
                 Resource: "*"
+              - Sid: SecretsManagerDbCredentialsAccess
+                Effect: Allow
+                Action:
+                - secretsmanager:GetSecretValue
+                Resource: !Ref MyRDSAuroraSecret
+              - Sid: RDSDataServiceAccess
+                Effect: Allow
+                Action:
+                - rds-data:BatchExecuteStatement
+                - rds-data:BeginTransaction
+                - rds-data:CommitTransaction
+                - rds-data:ExecuteStatement
+                - rds-data:RollbackTransaction
+                Resource: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:${RDSAuroraCluster}"
 
-# Outputs:
-#   WebEndpoint:
-#     Description: "API Gateway endpoint URL for Prod ${env} stage"
-#     Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${env}/"
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod ${env} stage"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${env}/"
