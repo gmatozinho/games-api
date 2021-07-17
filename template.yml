@@ -77,6 +77,16 @@ Resources:
       TracingEnabled: true
       Auth:
         ApiKeyRequired: true # sets for all methods
+        UsagePlan:          
+          CreateUsagePlan: PER_API
+          UsagePlanName: !Join ["", [{"Ref": "AWS::StackName"}, "-usage-plan"]]
+          Description: !Join [" ", [{"Ref": "AWS::StackName"}, "usage plan"]]
+          Quota:
+            Limit: 2000
+            Period: MONTH
+          Throttle:
+            BurstLimit: 10
+            RateLimit: 10
 
   GetAllItemsFunction:
     Type: AWS::Serverless::Function
