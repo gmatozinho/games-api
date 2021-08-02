@@ -10,13 +10,13 @@ Globals:
 Parameters:
   Stage:
     Type: "AWS::SSM::Parameter::Value<String>"
-    Default: /config/global/stage
+    Default: /config/global/env
   GithubUserName:
     Type: "AWS::SSM::Parameter::Value<String>"
     Default: /config/global/github-username
   GithubRepo:
     Type: String
-    Default: aws-stepfunctions-example
+    Default: games-api
   GithubOAuthToken:
     Type: "AWS::SSM::Parameter::Value<String>"
     Default: /config/global/github-token
@@ -243,7 +243,7 @@ Resources:
                 ChangeSetName: !Sub ${AWS::StackName}-update
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 StackName: !Sub ${AWS::StackName}-${Stage}-sam-app
-                TemplatePath: "build-output-artifacts::packaged-template.yml"
+                TemplatePath: "build-output-artifacts::template-export.yml"
               RunOrder: 1
             - Name: ExecuteChangeSet
               ActionTypeId:
