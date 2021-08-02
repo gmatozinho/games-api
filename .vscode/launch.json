@@ -1,0 +1,52 @@
+{
+  "configurations": [   
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "to-beat:PutItemFunction",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/template.yml",
+        "logicalId": "PutItemFunction"
+      },
+      "lambda": {
+        "payload": {
+          "path": "./events/event-post-item.json"
+        },
+        "environmentVariables": {
+          "REGION": "us-east-1",
+          "SECRET_ARN": "arn:aws:secretsmanager:us-east-1:682018951785:secret:MyRDSAuroraSecret-TAaaVNXFppGm-3tt2vR",
+          "CLUSTER_ARN": "arn:aws:rds:us-east-1:682018951785:cluster:my-serverless-cluster",
+          "DB_NAME": "Games"
+        }
+      },
+      "sam": {        
+      }
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "to-beat:src/handlers/put-item.putItemHandler (nodejs14.x)",
+      "invokeTarget": {
+        "target": "code",
+        "projectRoot": "${workspaceFolder}/",
+        "lambdaHandler": "src/handlers/put-item.putItemHandler"
+      },
+      "lambda": {
+        "runtime": "nodejs12.x",
+        "payload": {
+          "path": "./events/event-post-item.json"
+        },
+        "environmentVariables": {
+          "REGION": "us-east-1",
+          "SECRET_ARN": "arn:aws:secretsmanager:us-east-1:682018951785:secret:dummy",
+          "CLUSTER_ARN": "arn:aws:rds:us-east-1:682018951785:cluster:dummy",
+          "DB_NAME": "postgres"
+        }
+      },
+      "sam": {
+        "dockerNetwork": "host"
+      }
+    }
+  ]
+}

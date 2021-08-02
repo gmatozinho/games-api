@@ -1,4 +1,4 @@
 {
     "httpMethod": "POST",
-    "body": "{\"id\": \"id1\",\"name\": \"name1\"}"
+    "body": "{\"name\": \"God of war\",\"released\": \"2018\",\"website\": \"www.godofwar.com\",\"description\": \"deus grego\"}"
 }
