@@ -15,6 +15,7 @@
   },
   "scripts": {
     "test": "jest --roots __tests__/unit",
-    "integ-test": "jest --roots __tests__/integration"
+    "integ-test": "jest --roots __tests__/integration",
+    "start-local": "sam local start-api -p 9999 -t ./template.yml -n ./config.json --docker-network host --debug"
   }
 }

@@ -1,5 +1,26 @@
 {
-  "configurations": [   
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "to-beat:GetAllItemsFunction",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/template.yml",
+        "logicalId": "GetAllItemsFunction"
+      },
+      "lambda": {
+        "payload": {
+          "path": "./events/event-get-all-items.json"
+        },
+        "environmentVariables": {
+          "ENV": "local"
+        }
+      },
+      "sam": {
+        "dockerNetwork": "host"
+      }
+    },
     {
       "type": "aws-sam",
       "request": "direct-invoke",
@@ -20,8 +41,7 @@
           "DB_NAME": "Games"
         }
       },
-      "sam": {        
-      }
+      "sam": {}
     },
     {
       "type": "aws-sam",
