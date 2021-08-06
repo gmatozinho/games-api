@@ -1,5 +1,17 @@
 {
   "GetAllItemsFunction": {
     "ENV": "local"
+  },
+  "GetItemByIdFunction": {
+    "ENV": "local"
+  },
+  "CreateItemFunction": {
+    "ENV": "local"
+  },
+  "UpdateItemFunction": {
+    "ENV": "local"
+  },
+  "DeleteItemFunction": {
+    "ENV": "local"
   }
 }
