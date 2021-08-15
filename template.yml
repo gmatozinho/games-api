@@ -109,7 +109,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
-            Path: /
+            Path: /games
             Method: GET
             Auth:
               ApiKeyRequired: true
@@ -138,7 +138,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
-            Path: /{id}
+            Path: /games/{id}
             Method: GET
             Auth:
               ApiKeyRequired: true
@@ -167,7 +167,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
-            Path: /
+            Path: /games
             Method: POST
             Auth:
               ApiKeyRequired: true
@@ -196,7 +196,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
-            Path: /{id}
+            Path: /games/{id}
             Method: PATCH
             Auth:
               ApiKeyRequired: true
@@ -225,7 +225,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
-            Path: /{id}
+            Path: /games/{id}
             Method: DELETE
             Auth:
               ApiKeyRequired: true
