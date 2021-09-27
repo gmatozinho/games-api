@@ -178,7 +178,7 @@ const returnRelationFieldName = (relation) => {
     case "TAG":
       return "tag_id";
     default:
-      throw new Error("Unreconized relation");
+      throw new Error("Unrecognized relation");
   }
 };
 
