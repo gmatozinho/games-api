@@ -3,7 +3,7 @@ const lambda = require("../../../src/handlers/create-item");
 //const mockedKnex = require("");
 
 jest.mock("../../../src/lib/config", () => {
-  const a = {
+  const knex = {
     insert: jest
       .fn()
       .mockReturnThis()
@@ -20,8 +20,7 @@ jest.mock("../../../src/lib/config", () => {
       ]),
   };
   const mKnex = {
-    returning: () => a,
-
+    returning: () => knex,
     catch: jest.fn().mockReturnThis(),
   };
   return { knex: () => mKnex };
