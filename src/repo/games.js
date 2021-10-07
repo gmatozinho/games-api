@@ -1,5 +1,5 @@
 const { knex } = require("../lib/config");
-var knexnest = require("knexnest");
+const knexnest = require("knexnest");
 
 const buildGame = ({ name, released, website, description, created_at }) => {
   return { name, released, website, description, created_at };

@@ -14,9 +14,9 @@ exports.updateItemHandler = async (event) => {
       `update method only accepts PATCH method, you tried: ${event.httpMethod} method.`
     );
   }
-  const body = JSON.parse(event.body);
 
   try {
+    const body = JSON.parse(event.body);
     const game = await update(event.pathParameters.id, body);
 
     const response = {
