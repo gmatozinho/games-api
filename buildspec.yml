@@ -23,7 +23,6 @@ artifacts:
 
 reports:
   jest_reports:
-    files:
-      - report
-    file-format: JUNITXML
+    files: #Store all of the files
+      - '**/*'
     base-directory: reports
