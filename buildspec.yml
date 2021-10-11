@@ -6,14 +6,15 @@ phases:
       - npm install
   pre_build:
     commands:
-      # Discover and run unit tests in the '__tests__' directory
-      - npm run test
+     
       # Remove all unit tests to reduce the size of the package that will be ultimately uploaded to Lambda
       - rm -rf ./__tests__
       # Remove all dependencies not needed for the Lambda deployment package (the packages from devDependencies in package.json)
       - npm prune --production
   build:
     commands:
+# Discover and run unit tests in the '__tests__' directory
+      - npm run test
       # Use AWS SAM to package the application by using AWS CloudFormation
       - aws cloudformation package --template template.yml --s3-bucket ${BUCKET} --output-template template-export.yml
 artifacts:
@@ -25,4 +26,5 @@ reports:
   jest_reports:
     files: #Store all of the files
       - '**/*'
+    file-format: JunitXml
     base-directory: reports
