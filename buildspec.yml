@@ -20,3 +20,10 @@ artifacts:
   type: zip
   files:
     - template-export.yml
+
+reports:
+  jest_reports:
+    files:
+      - report
+    file-format: JUNITXML
+    base-directory: reports
