@@ -6,15 +6,16 @@ const event = {
 }; */
 
 exports.createItemHandler = async (event) => {
-  console.log(JSON.stringify(event))
+  console.log(JSON.stringify(event));
   if (event.httpMethod !== "POST") {
     throw new Error(
       `postMethod only accepts POST method, you tried: ${event.httpMethod} method.`
     );
   }
-  const body = JSON.parse(event.body);
 
   try {
+    const body = JSON.parse(event.body);
+
     const game = await create(body);
 
     const response = {

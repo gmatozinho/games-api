@@ -1,6 +1,7 @@
 samconfig.toml
 .aws-sam/
 env.sh
+reports
 
 # Logs
 logs
