@@ -125,6 +125,13 @@ Resources:
               Resource:
                 - !GetAtt S3Bucket.Arn
                 - !Sub ${S3Bucket.Arn}/*
+            - Effect: Allow
+              Action:
+                -  'codebuild:CreateReportGroup'
+                -  'codebuild:CreateReport'
+                -  'codebuild:BatchPutTestCases'
+                -  'codebuild:UpdateReport'
+              Resource: "*"
 
   # Create Access Role for Cloudformation
   CloudFormationExecutionRole:
