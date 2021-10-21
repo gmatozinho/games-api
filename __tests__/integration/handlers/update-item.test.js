@@ -30,8 +30,8 @@ jest.mock("../../../src/lib/config", () => {
 });
 
 // This includes all tests for putItemHandler()
-describe("Test update item handler", function () {
-  it("should update game in the table", async () => {
+describe("T4-Atualizar jogo", function () {
+  it("Deve atualizar um jogo na tabela", async () => {
     const returnedItem = [
       {
         id: "b46cdad7-ea56-4ce3-9517-c3ff150a3abb",
@@ -60,7 +60,7 @@ describe("Test update item handler", function () {
 
     expect(result).toEqual(expectedResult);
   });
-  it("should't update because its a invalid method", async () => {
+  it("Não deve atualizar pois o metodo esta invalido", async () => {
     const event = {
       httpMethod: "GET",
       body: "",
@@ -75,7 +75,7 @@ describe("Test update item handler", function () {
     }
   });
 
-  it("should't add because dont have parameter with id", async () => {
+  it("Não deve se atualizar pois nao esta enviando o parametro ID", async () => {
     const returnedItem = {
       message: "Cannot read property 'id' of undefined",
     };

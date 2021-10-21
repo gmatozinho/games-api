@@ -15,8 +15,8 @@ jest.mock("../../../src/lib/config", () => {
 });
 
 // This includes all tests for putItemHandler()
-describe("Test get all items handler", function () {
-  it("should get all games from the table", async () => {
+describe("T2-Pegar Jogos", function () {
+  it("Deve pegar todos os jogos da tabela", async () => {
     const returnedItem = [
       {
         id: "b46cdad7-ea56-4ce3-9517-c3ff150a3abb",
@@ -94,7 +94,7 @@ describe("Test get all items handler", function () {
 
     expect(result).toEqual(expectedResult);
   });
-  it("should't get because its a invalid method", async () => {
+  it("Não deve pegar todos os jogos pois é um método invalido", async () => {
     const event = {
       httpMethod: "DELETE",
     };
@@ -108,7 +108,7 @@ describe("Test get all items handler", function () {
     }
   });
 
-  it("should't get because have knexnest error", async () => {
+  it("Não deve pegar todos os jogos pois teve um erro no knexnest", async () => {
     const returnedItem = {
       message: "knexnest error",
     };

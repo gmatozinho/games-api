@@ -20,11 +20,11 @@ jest.mock("../../../src/lib/config", () => {
 });
 
 // This includes all tests for putItemHandler()
-describe("Test get a item by id handler", function () {
+describe("T3-Pegar jogo por ID", function () {
   beforeEach(() => {
     knexnest.mockReset();
   });
-  it("should get a item by id from the table", async () => {
+  it("Deve pegar um jogo por id na tabela", async () => {
     const returnedItem = {
       id: "b46cdad7-ea56-4ce3-9517-c3ff150a3abb",
       name: "Fifa",
@@ -102,7 +102,7 @@ describe("Test get a item by id handler", function () {
 
     expect(result).toEqual(expectedResult);
   });
-  it("should't get because its a invalid method", async () => {
+  it("Não deve pegar um jogo porque o metodo esta invalido", async () => {
     const event = {
       httpMethod: "DELETE",
     };
@@ -116,7 +116,7 @@ describe("Test get a item by id handler", function () {
     }
   });
 
-  it("should't get because have knexnest error", async () => {
+  it("Não deve pegar um jogo porque tem um erro no knexnest", async () => {
     const returnedItem = {
       message: "knexnest error",
     };

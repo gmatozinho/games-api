@@ -30,8 +30,8 @@ jest.mock("../../../src/lib/config", () => {
 });
 
 // This includes all tests for putItemHandler()
-describe("Test delete item handler", function () {
-  it("should delete game from the table", async () => {
+describe("T5-Remover Jogo", function () {
+  it("Deve deletar um jogo da tabela", async () => {
     const returnedItem = [
       {
         id: "b46cdad7-ea56-4ce3-9517-c3ff150a3abb",
@@ -59,7 +59,7 @@ describe("Test delete item handler", function () {
 
     expect(result).toEqual(expectedResult);
   });
-  it("should't delete because its a invalid method", async () => {
+  it("Não deve deletar jogo pois o metodo esta invalido", async () => {
     const event = {
       httpMethod: "GET",
       body: "",
@@ -74,7 +74,7 @@ describe("Test delete item handler", function () {
     }
   });
 
-  it("should't delete because dont have parameter with id", async () => {
+  it("Não deve deletar um jogo pois nao foi enviado o parametro ID", async () => {
     const returnedItem = {
       message: "Cannot read property 'id' of undefined",
     };

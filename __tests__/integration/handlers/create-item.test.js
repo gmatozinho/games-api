@@ -26,8 +26,8 @@ jest.mock("../../../src/lib/config", () => {
 });
 
 // This includes all tests for putItemHandler()
-describe("Test create item handler", function () {
-  it("should add game to the table", async () => {
+describe("T1-Criar Jogo", function () {
+  it("Deve criar um jogo na tabela", async () => {
     const returnedItem = {
       id: "b46cdad7-ea56-4ce3-9517-c3ff150a3abb",
       name: "God of war",
@@ -51,7 +51,7 @@ describe("Test create item handler", function () {
 
     expect(result).toEqual(expectedResult);
   });
-  it("should't add because its a invalid method", async () => {
+  it("Não deve criar pois o método é invalido", async () => {
     const event = {
       httpMethod: "GET",
       body: "",
@@ -66,7 +66,7 @@ describe("Test create item handler", function () {
     }
   });
 
-  it("should't add because its a invalid body", async () => {
+  it("Não deve criar porque o corpo é inválido", async () => {
     const event = {
       httpMethod: "POST",
       body: "",
